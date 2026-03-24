@@ -397,24 +397,12 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 862510213800282876}
     - target: {fileID: -3182532293454850482, guid: 4ac1a2567c2d52a4392efcf1b6a8cb82, type: 3}
-      propertyPath: pinningPlanks.Array.size
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: -3182532293454850482, guid: 4ac1a2567c2d52a4392efcf1b6a8cb82, type: 3}
       propertyPath: pinningPlanks.Array.data[0]
       value: 
       objectReference: {fileID: 4867989151978486416}
     - target: {fileID: 4571028713795984709, guid: 4ac1a2567c2d52a4392efcf1b6a8cb82, type: 3}
       propertyPath: m_Name
       value: ScrewPrefab (1)
-      objectReference: {fileID: 0}
-    - target: {fileID: 5097420396206378621, guid: 4ac1a2567c2d52a4392efcf1b6a8cb82, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 0.60116
-      objectReference: {fileID: 0}
-    - target: {fileID: 5097420396206378621, guid: 4ac1a2567c2d52a4392efcf1b6a8cb82, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 0.54056
       objectReference: {fileID: 0}
     - target: {fileID: 5097420396206378621, guid: 4ac1a2567c2d52a4392efcf1b6a8cb82, type: 3}
       propertyPath: m_LocalPosition.x
@@ -455,10 +443,6 @@ PrefabInstance:
     - target: {fileID: 5097420396206378621, guid: 4ac1a2567c2d52a4392efcf1b6a8cb82, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7084148284278012583, guid: 4ac1a2567c2d52a4392efcf1b6a8cb82, type: 3}
-      propertyPath: m_IsTrigger
-      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

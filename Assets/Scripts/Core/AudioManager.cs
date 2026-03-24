@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System;
 
 public class AudioManager : MonoBehaviour
 {
@@ -57,7 +58,7 @@ public class AudioManager : MonoBehaviour
         if (PlayerData.Instance == null) return;
         if (sfxSource != null) sfxSource.mute = !PlayerData.Instance.SoundEnabled;
         if (musicSource != null)
-        {
+        {   
             musicSource.mute = !PlayerData.Instance.MusicEnabled;
             if (PlayerData.Instance.MusicEnabled && !musicSource.isPlaying && musicSource.clip != null)
                 musicSource.Play();
