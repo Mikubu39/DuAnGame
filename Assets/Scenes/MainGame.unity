@@ -609,6 +609,18 @@ MonoBehaviour:
           m_StringArgument: PressButton
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 881124934}
+        m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
+        m_MethodName: StartGame
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &637639184
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1554,6 +1566,18 @@ MonoBehaviour:
           m_StringArgument: PressButton
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 881124934}
+        m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
+        m_MethodName: OpenSettings
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1072183607
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1818,7 +1842,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1521154722
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2273,6 +2297,18 @@ MonoBehaviour:
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: PressButton
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 2078110852}
+        m_TargetAssemblyTypeName: PlayerData, Assembly-CSharp
+        m_MethodName: 
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
   m_IsOn: 0
