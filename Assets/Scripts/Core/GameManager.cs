@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
-using TMPro; // Thêm thư viện này để dùng TextMeshPro
+using TMPro;
+using UnityEngine.Apple.ReplayKit; // Thêm thư viện này để dùng TextMeshPro
 
 public class GameManager : MonoBehaviour
 {
@@ -10,7 +11,8 @@ public class GameManager : MonoBehaviour
     public GameObject panelMainMenu;
     public GameObject panelGameplay;
     public GameObject panelWin;
-    public GameObject panelSettings; // Khai báo thêm bảng Settings
+    public GameObject panelSettings;
+    public GameObject panelPause;
 
     [Header("UI Texts")]
     public TextMeshProUGUI txtMenuPlayButton; // Chữ trên nút Play màu xanh
@@ -41,6 +43,23 @@ public class GameManager : MonoBehaviour
         LoadLevel(currentLevelIndex);
     }
 
+    public void Pause()
+    {
+        panelPause.SetActive(true);
+        Time.timeScale = 0f;
+    }
+
+    public void Resume()
+    {
+        panelPause.SetActive(false);
+        Time.timeScale = 1f;
+    }
+    
+    public void ReplayLevel()
+    {
+        Resume(); 
+        LoadLevel(currentLevelIndex);
+    }
     public void WinGame()
     {
         ShowUI(panelWin);
@@ -104,7 +123,8 @@ public class GameManager : MonoBehaviour
         panelMainMenu.SetActive(false);
         panelGameplay.SetActive(false);
         panelWin.SetActive(false);
-        panelSettings.SetActive(false); // Ẩn settings nếu đang mở
+        panelSettings.SetActive(false);
+        panelPause.SetActive(false);
 
         if (panelToShow != null) panelToShow.SetActive(true);
     }

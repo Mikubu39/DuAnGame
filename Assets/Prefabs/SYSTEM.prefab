@@ -1,0 +1,106 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1425217956344015538
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5778358163360049776}
+  - component: {fileID: 6395980408831874779}
+  - component: {fileID: 3818825343251125231}
+  - component: {fileID: 7750476833586648313}
+  - component: {fileID: 354263509213692625}
+  m_Layer: 0
+  m_Name: SYSTEM
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5778358163360049776
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1425217956344015538}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6395980408831874779
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1425217956344015538}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 198b14f6f815cf04792c1f07a215070f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  panelMainMenu: {fileID: 0}
+  panelGameplay: {fileID: 0}
+  panelWin: {fileID: 0}
+  panelSettings: {fileID: 0}
+  panelPause: {fileID: 0}
+  txtMenuPlayButton: {fileID: 0}
+  txtGameplayLevel: {fileID: 0}
+  levelPrefabs:
+  - {fileID: 2089329047478717488, guid: 83d7cbe28d0764d40aceaa58d77cb9ad, type: 3}
+  - {fileID: 2089329047478717488, guid: aa0891ccb3676bf4aa0bd80767320adc, type: 3}
+  levelContainer: {fileID: 0}
+--- !u!114 &3818825343251125231
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1425217956344015538}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e7cb4e1c2d81b54ba43b14403015ee5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sfxSource: {fileID: 0}
+  musicSource: {fileID: 0}
+  sounds:
+  - name: Screw
+    clip: {fileID: 8300000, guid: c7394229babb533489aeee5838f38735, type: 3}
+    volume: 1
+  - name: PressButton
+    clip: {fileID: 8300000, guid: 5b0fbeff3fb01934590dee94581a9cf5, type: 3}
+    volume: 1
+  backgroundMusic: {fileID: 8300000, guid: d2ed3b2ab17eddf47b7cb3a53e963143, type: 3}
+--- !u!114 &7750476833586648313
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1425217956344015538}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 40c90206c4655394082ede2a699b963f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &354263509213692625
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1425217956344015538}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b192bcc7837e9e24fa194536a4359a25, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
