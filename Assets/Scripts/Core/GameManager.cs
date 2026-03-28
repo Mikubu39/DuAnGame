@@ -13,7 +13,6 @@ public class GameManager : MonoBehaviour
     public GameObject panelWin;
     public GameObject panelSettings;
     public GameObject panelPause;
-    public GameObject panelShop;
 
     [Header("UI Texts")]
     public TextMeshProUGUI txtMenuPlayButton; // Chữ trên nút Play màu xanh
@@ -26,7 +25,6 @@ public class GameManager : MonoBehaviour
 
     private GameObject currentLevelObject;
     private int currentLevelIndex = 0;
-    public Animator animator;
 
     private void Awake()
     {
@@ -99,17 +97,6 @@ public class GameManager : MonoBehaviour
         panelSettings.SetActive(false);
     }
 
-    public void OpenShop()
-    {
-        animator.SetTrigger("OpenShop");
-        panelShop.SetActive(true);
-    }
-
-    public void CloseShop()
-    {
-        animator.SetTrigger("CloseShop");
-        panelShop.SetActive(false);
-    }
     public void BackToMenu()
     {
         // Dùng cho nút Pause lúc đang chơi
@@ -141,7 +128,6 @@ public class GameManager : MonoBehaviour
         panelWin.SetActive(false);
         panelSettings.SetActive(false);
         panelPause.SetActive(false);
-        panelShop.SetActive(false);
 
         if (panelToShow != null) panelToShow.SetActive(true);
     }
