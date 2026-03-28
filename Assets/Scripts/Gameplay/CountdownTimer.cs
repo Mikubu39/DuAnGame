@@ -6,7 +6,7 @@ public class CountdownTimer : MonoBehaviour
     public static float timeRemaining = 0f;
     public TextMeshProUGUI timerText;
 
-    private bool isRunning = true;
+    public static bool isRunning = true;
 
     void Update()
     {
@@ -14,7 +14,7 @@ public class CountdownTimer : MonoBehaviour
         {
             if (timeRemaining > 0)
             {
-                timeRemaining -= Time.unscaledDeltaTime;
+                timeRemaining -= Time.deltaTime;
                 UpdateTimerDisplay(timeRemaining);
             }
             else

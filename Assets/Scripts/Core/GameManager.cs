@@ -11,7 +11,7 @@ public class GameManager : MonoBehaviour
     public GameObject panelMainMenu;
     public GameObject panelGameplay;
     public GameObject panelWin;
-    public GameObject panelSettings;
+    public GameObject panelLose;
     public GameObject panelPause;
 
     [Header("UI Texts")]
@@ -70,7 +70,7 @@ public class GameManager : MonoBehaviour
 
     public void TimerEnded()
     {
-        Debug.Log("Hết giờ!");
+        ShowUI(panelLose);
     }
     public void NextLevel()
     {
@@ -90,16 +90,6 @@ public class GameManager : MonoBehaviour
     }
 
     // --- CÁC HÀM MỚI CHO MENU ---
-
-    public void OpenSettings()
-    {
-        panelSettings.SetActive(true); // Chỉ bật đè lên, không tắt MainMenu
-    }
-
-    public void CloseSettings()
-    {
-        panelSettings.SetActive(false);
-    }
 
     public void BackToMenu()
     {
@@ -131,8 +121,8 @@ public class GameManager : MonoBehaviour
         panelMainMenu.SetActive(false);
         panelGameplay.SetActive(false);
         panelWin.SetActive(false);
-        panelSettings.SetActive(false);
         panelPause.SetActive(false);
+        panelLose.SetActive(false);
 
         if (panelToShow != null) panelToShow.SetActive(true);
     }
@@ -140,9 +130,14 @@ public class GameManager : MonoBehaviour
     public void TimeLimit()
     {
         var levelInform = levelPrefabs[currentLevelIndex].GetComponent<LevelInformation>();
-        if(CountdownTimer.timeRemaining > 0)
+        if (levelInform.timeLimit > 0)
         {
-            CountdownTimer.timeRemaining = levelInform.TimeLimit;
+            CountdownTimer.isRunning = true;
+            CountdownTimer.timeRemaining = levelInform.timeLimit;
+        }
+        else
+        {
+            CountdownTimer.timeRemaining = 300;
         }
     }
 }

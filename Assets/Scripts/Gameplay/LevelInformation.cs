@@ -5,5 +5,5 @@ using UnityEngine;
 public class LevelInformation : MonoBehaviour
 {
     public int level;
-    public float TimeLimit;
+    public float timeLimit;
 }

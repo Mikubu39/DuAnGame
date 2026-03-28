@@ -69,7 +69,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   level: 2
-  TimeLimit: 30
+  timeLimit: 30
 --- !u!1 &4012166654491755470
 GameObject:
   m_ObjectHideFlags: 0
