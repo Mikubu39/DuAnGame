@@ -68,6 +68,10 @@ public class GameManager : MonoBehaviour
         ShowUI(panelWin);
     }
 
+    public void TimerEnded()
+    {
+        Debug.Log("Hết giờ!");
+    }
     public void NextLevel()
     {
         currentLevelIndex++;
@@ -118,6 +122,7 @@ public class GameManager : MonoBehaviour
         if (levelPrefabs.Count > index && levelPrefabs[index] != null)
         {
             currentLevelObject = Instantiate(levelPrefabs[index], levelContainer);
+            TimeLimit();
         }
     }
 
@@ -130,5 +135,14 @@ public class GameManager : MonoBehaviour
         panelPause.SetActive(false);
 
         if (panelToShow != null) panelToShow.SetActive(true);
+    }
+
+    public void TimeLimit()
+    {
+        var levelInform = levelPrefabs[currentLevelIndex].GetComponent<LevelInformation>();
+        if(CountdownTimer.timeRemaining > 0)
+        {
+            CountdownTimer.timeRemaining = levelInform.TimeLimit;
+        }
     }
 }
