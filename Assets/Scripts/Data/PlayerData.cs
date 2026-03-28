@@ -53,13 +53,7 @@ public class PlayerData : MonoBehaviour
         SoundEnabled = PlayerPrefs.GetInt(KEY_SOUND, 1) == 1;
         MusicEnabled = PlayerPrefs.GetInt(KEY_MUSIC, 1) == 1;
         VibrationEnabled = PlayerPrefs.GetInt(KEY_VIBRATION, 1) == 1;
-        DailyStreak = PlayerPrefs.GetInt(KEY_DAILY_STREAK, 0);
         TotalLevelsCompleted = PlayerPrefs.GetInt(KEY_TOTAL_COMPLETED, 0);
-        ConsecutiveWins = PlayerPrefs.GetInt(KEY_CONSECUTIVE_WINS, 0);
-        FacebookJoined = PlayerPrefs.GetInt(KEY_FACEBOOK_JOINED, 0) == 1;
-
-        string dateStr = PlayerPrefs.GetString(KEY_LAST_DAILY_REWARD, "");
-        LastDailyReward = string.IsNullOrEmpty(dateStr) ? DateTime.MinValue : DateTime.Parse(dateStr);
     }
 
     private void Save() => PlayerPrefs.Save();
@@ -77,20 +71,4 @@ public class PlayerData : MonoBehaviour
     public void SetFacebookJoined() { FacebookJoined = true; PlayerPrefs.SetInt(KEY_FACEBOOK_JOINED, 1); AddCoins(50); Save(); }
 
     public void IncrementTotalCompleted() { TotalLevelsCompleted++; PlayerPrefs.SetInt(KEY_TOTAL_COMPLETED, TotalLevelsCompleted); Save(); }
-    public void SetConsecutiveWins(int count) { ConsecutiveWins = count; PlayerPrefs.SetInt(KEY_CONSECUTIVE_WINS, count); Save(); }
-
-    public bool CanClaimDailyReward()
-    {
-        return (DateTime.Now - LastDailyReward).TotalHours >= 24;
-    }
-
-    public void ClaimDailyReward(int coinsAmount)
-    {
-        LastDailyReward = DateTime.Now;
-        PlayerPrefs.SetString(KEY_LAST_DAILY_REWARD, LastDailyReward.ToString());
-        DailyStreak++;
-        PlayerPrefs.SetInt(KEY_DAILY_STREAK, DailyStreak);
-        AddCoins(coinsAmount);
-        Save();
-    }
 }

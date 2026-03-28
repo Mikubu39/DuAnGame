@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 3818825343251125231}
   - component: {fileID: 7750476833586648313}
   - component: {fileID: 354263509213692625}
+  - component: {fileID: 3779761268994232653}
   m_Layer: 0
   m_Name: SYSTEM
   m_TagString: Untagged
@@ -50,10 +51,11 @@ MonoBehaviour:
   panelMainMenu: {fileID: 0}
   panelGameplay: {fileID: 0}
   panelWin: {fileID: 0}
-  panelSettings: {fileID: 0}
+  panelLose: {fileID: 0}
   panelPause: {fileID: 0}
   txtMenuPlayButton: {fileID: 0}
   txtGameplayLevel: {fileID: 0}
+  txtCoins: {fileID: 0}
   levelPrefabs:
   - {fileID: 2089329047478717488, guid: 83d7cbe28d0764d40aceaa58d77cb9ad, type: 3}
   - {fileID: 2089329047478717488, guid: aa0891ccb3676bf4aa0bd80767320adc, type: 3}
@@ -102,5 +104,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b192bcc7837e9e24fa194536a4359a25, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &3779761268994232653
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1425217956344015538}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ba5c964f0e4f424a89c2628ffc5c970, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
