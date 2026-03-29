@@ -109,8 +109,19 @@ public class Screw : MonoBehaviour
             }
         }
         AudioManager.Instance.PlaySound("Screw");
-        StopAllCoroutines();
-        StartCoroutine(LiftAnim());
+        if (UseItem.isDestroyingScrew)
+        {
+            GameObject.Destroy(_held);
+            _held = null;
+            isSelected = false;
+            UseItem.isDestroyingScrew = false;
+            return;
+        }
+        else
+        {
+            StopAllCoroutines();
+            StartCoroutine(LiftAnim());
+        }
     }
 
     public void PutDown_Cancel()

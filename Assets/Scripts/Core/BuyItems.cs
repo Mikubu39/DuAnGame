@@ -14,18 +14,18 @@ public class BuyItems : MonoBehaviour
             PlayerPrefs.Save();
         }
         else{
-            Debug.Log("Not enough coins to buy unscrew.");
+            NotificationUI.Instance.ShowNotification("Not enough coins to buy unscrew(s)");
         }
     }
     public void Buy30sTime(int amount = 1)
     {
         if (PlayerData.Instance.SpendCoins(25))
         {
-            Inventory.Instance.AddTime30s();           
+            Inventory.Instance.AddTime60s();           
             PlayerPrefs.Save();
         }
         else{
-            Debug.Log("Not enough coins to buy +30s.");
+            NotificationUI.Instance.ShowNotification("Not enough coins to buy +60s.");
         }
     }
 }

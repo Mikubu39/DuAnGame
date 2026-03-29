@@ -66,6 +66,9 @@ public class GameManager : MonoBehaviour
     public void WinGame()
     {
         ShowUI(panelWin);
+        if(currentLevelIndex < PlayerData.Instance.TotalLevelsCompleted) PlayerData.Instance.AddCoins(10);
+        if(PlayerData.Instance.UnlockedLevel < currentLevelIndex + 1) PlayerData.Instance.UnlockLevel(currentLevelIndex + 1 ) ;
+        PlayerData.Instance.IncrementTotalCompleted();
     }
 
     public void TimerEnded()

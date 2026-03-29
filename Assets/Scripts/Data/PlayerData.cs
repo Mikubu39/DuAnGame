@@ -14,11 +14,7 @@ public class PlayerData : MonoBehaviour
     private const string KEY_SOUND = "sound";
     private const string KEY_MUSIC = "music";
     private const string KEY_VIBRATION = "vibration";
-    private const string KEY_LAST_DAILY_REWARD = "lastDailyReward";
-    private const string KEY_DAILY_STREAK = "dailyStreak";
     private const string KEY_TOTAL_COMPLETED = "totalCompleted";
-    private const string KEY_CONSECUTIVE_WINS = "consecutiveWins";
-    private const string KEY_FACEBOOK_JOINED = "facebookJoined";
 
     // Properties
     public int Coins { get; private set; }
@@ -31,9 +27,6 @@ public class PlayerData : MonoBehaviour
     public bool VibrationEnabled { get; private set; }
     public int DailyStreak { get; private set; }
     public int TotalLevelsCompleted { get; private set; }
-    public int ConsecutiveWins { get; private set; }
-    public bool FacebookJoined { get; private set; }
-    public DateTime LastDailyReward { get; private set; }
 
     private void Awake()
     {
@@ -67,8 +60,5 @@ public class PlayerData : MonoBehaviour
     public void SetSound(bool on) { SoundEnabled = on; PlayerPrefs.SetInt(KEY_SOUND, on ? 1 : 0); Save(); }
     public void SetMusic(bool on) { MusicEnabled = on; PlayerPrefs.SetInt(KEY_MUSIC, on ? 1 : 0); Save(); }
     public void SetVibration(bool on) { VibrationEnabled = on; PlayerPrefs.SetInt(KEY_VIBRATION, on ? 1 : 0); Save(); }
-
-    public void SetFacebookJoined() { FacebookJoined = true; PlayerPrefs.SetInt(KEY_FACEBOOK_JOINED, 1); AddCoins(50); Save(); }
-
     public void IncrementTotalCompleted() { TotalLevelsCompleted++; PlayerPrefs.SetInt(KEY_TOTAL_COMPLETED, TotalLevelsCompleted); Save(); }
 }
