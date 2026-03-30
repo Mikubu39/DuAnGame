@@ -17,7 +17,6 @@ public class GameManager : MonoBehaviour
     [Header("UI Texts")]
     public TextMeshProUGUI txtMenuPlayButton; // Chữ trên nút Play màu xanh
     public TextMeshProUGUI txtGameplayLevel;  // Chữ hiển thị level lúc đang chơi
-    public TextMeshProUGUI txtCoins;
 
     [Header("Level Settings")]
     public List<GameObject> levelPrefabs;
@@ -36,7 +35,6 @@ public class GameManager : MonoBehaviour
     {
         UpdateLevelText();
         ShowUI(panelMainMenu);
-        txtCoins.text = PlayerData.Instance.Coins.ToString();
     }
 
     public void StartGame()
@@ -67,12 +65,14 @@ public class GameManager : MonoBehaviour
     {
         ShowUI(panelWin);
         if(currentLevelIndex < PlayerData.Instance.TotalLevelsCompleted) PlayerData.Instance.AddCoins(10);
-        if(PlayerData.Instance.UnlockedLevel < currentLevelIndex + 1) PlayerData.Instance.UnlockLevel(currentLevelIndex + 1 ) ;
+        UpdateVisual.Instance.UpdateCoins();
+        if (PlayerData.Instance.UnlockedLevel < currentLevelIndex + 1) PlayerData.Instance.UnlockLevel(currentLevelIndex + 1 ) ;
         PlayerData.Instance.IncrementTotalCompleted();
     }
 
     public void TimerEnded()
     {
+        Time.timeScale = 0f;
         ShowUI(panelLose);
     }
     public void NextLevel()
@@ -117,6 +117,8 @@ public class GameManager : MonoBehaviour
             currentLevelObject = Instantiate(levelPrefabs[index], levelContainer);
             TimeLimit();
         }
+        UseItem.isDestroyingScrew = false;
+        UpdateVisual.Instance.UpdateUnscrewImg(false);
     }
 
     private void ShowUI(GameObject panelToShow)

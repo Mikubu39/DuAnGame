@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Screw : MonoBehaviour
@@ -109,19 +110,8 @@ public class Screw : MonoBehaviour
             }
         }
         AudioManager.Instance.PlaySound("Screw");
-        if (UseItem.isDestroyingScrew)
-        {
-            GameObject.Destroy(_held);
-            _held = null;
-            isSelected = false;
-            UseItem.isDestroyingScrew = false;
-            return;
-        }
-        else
-        {
-            StopAllCoroutines();
-            StartCoroutine(LiftAnim());
-        }
+        StopAllCoroutines();
+        StartCoroutine(LiftAnim());
     }
 
     public void PutDown_Cancel()
