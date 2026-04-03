@@ -57,10 +57,6 @@ public class AchievementManager : MonoBehaviour
         CheckAchievement("no_lose_5", count);
     }
 
-    public void OnLevelLost()
-    {
-        PlayerData.Instance?.SetConsecutiveWins(0);
-    }
 
     private void CheckAchievement(string id, int currentValue)
     {
@@ -82,7 +78,6 @@ public class AchievementManager : MonoBehaviour
         {
             case "first_level":  return PlayerData.Instance?.TotalLevelsCompleted ?? 0;
             case "100_levels":   return PlayerData.Instance?.TotalLevelsCompleted ?? 0;
-            case "no_lose_5":    return PlayerData.Instance?.ConsecutiveWins ?? 0;
             case "daily_7":      return PlayerData.Instance?.DailyStreak ?? 0;
             default:             return 0;
         }

@@ -14,13 +14,7 @@ public class VibrationManager : MonoBehaviour
     public void Vibrate()
     {
         if (PlayerData.Instance?.VibrationEnabled != true) return;
-#if UNITY_ANDROID && !UNITY_EDITOR
         Handheld.Vibrate();
-#elif UNITY_IOS && !UNITY_EDITOR
-        // iOS haptic via native plugin
-        iOSHaptics.ImpactLight();
-#endif
-        // In editor, just log
         Debug.Log("[Vibration] Buzz!");
     }
 }

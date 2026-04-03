@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
-using TMPro; // Thêm thư viện này để dùng TextMeshPro
+using TMPro;
+using UnityEngine.Apple.ReplayKit; // Thêm thư viện này để dùng TextMeshPro
 
 public class GameManager : MonoBehaviour
 {
@@ -10,7 +11,8 @@ public class GameManager : MonoBehaviour
     public GameObject panelMainMenu;
     public GameObject panelGameplay;
     public GameObject panelWin;
-    public GameObject panelSettings; // Khai báo thêm bảng Settings
+    public GameObject panelLose;
+    public GameObject panelPause;
 
     [Header("UI Texts")]
     public TextMeshProUGUI txtMenuPlayButton; // Chữ trên nút Play màu xanh
@@ -41,11 +43,38 @@ public class GameManager : MonoBehaviour
         LoadLevel(currentLevelIndex);
     }
 
+    public void Pause()
+    {
+        panelPause.SetActive(true);
+        Time.timeScale = 0f;
+    }
+
+    public void Resume()
+    {
+        panelPause.SetActive(false);
+        Time.timeScale = 1f;
+    }
+    
+    public void ReplayLevel()
+    {
+        Resume();
+        ShowUI(panelGameplay);
+        LoadLevel(currentLevelIndex);
+    }
     public void WinGame()
     {
         ShowUI(panelWin);
+        if(currentLevelIndex < PlayerData.Instance.TotalLevelsCompleted) PlayerData.Instance.AddCoins(10);
+        UpdateVisual.Instance.UpdateCoins();
+        if (PlayerData.Instance.UnlockedLevel < currentLevelIndex + 1) PlayerData.Instance.UnlockLevel(currentLevelIndex + 1 ) ;
+        PlayerData.Instance.IncrementTotalCompleted();
     }
 
+    public void TimerEnded()
+    {
+        Time.timeScale = 0f;
+        ShowUI(panelLose);
+    }
     public void NextLevel()
     {
         currentLevelIndex++;
@@ -64,16 +93,6 @@ public class GameManager : MonoBehaviour
     }
 
     // --- CÁC HÀM MỚI CHO MENU ---
-
-    public void OpenSettings()
-    {
-        panelSettings.SetActive(true); // Chỉ bật đè lên, không tắt MainMenu
-    }
-
-    public void CloseSettings()
-    {
-        panelSettings.SetActive(false);
-    }
 
     public void BackToMenu()
     {
@@ -96,7 +115,10 @@ public class GameManager : MonoBehaviour
         if (levelPrefabs.Count > index && levelPrefabs[index] != null)
         {
             currentLevelObject = Instantiate(levelPrefabs[index], levelContainer);
+            TimeLimit();
         }
+        UseItem.isDestroyingScrew = false;
+        UpdateVisual.Instance.UpdateUnscrewImg(false);
     }
 
     private void ShowUI(GameObject panelToShow)
@@ -104,8 +126,23 @@ public class GameManager : MonoBehaviour
         panelMainMenu.SetActive(false);
         panelGameplay.SetActive(false);
         panelWin.SetActive(false);
-        panelSettings.SetActive(false); // Ẩn settings nếu đang mở
+        panelPause.SetActive(false);
+        panelLose.SetActive(false);
 
         if (panelToShow != null) panelToShow.SetActive(true);
+    }
+
+    public void TimeLimit()
+    {
+        var levelInform = levelPrefabs[currentLevelIndex].GetComponent<LevelInformation>();
+        if (levelInform.timeLimit > 0)
+        {
+            CountdownTimer.isRunning = true;
+            CountdownTimer.timeRemaining = levelInform.timeLimit;
+        }
+        else
+        {
+            CountdownTimer.timeRemaining = 300;
+        }
     }
 }

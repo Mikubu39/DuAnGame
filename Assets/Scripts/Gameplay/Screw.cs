@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Screw : MonoBehaviour
@@ -108,7 +109,7 @@ public class Screw : MonoBehaviour
                 plank.GetComponent<Rigidbody2D>().angularVelocity = 0f;
             }
         }
-
+        AudioManager.Instance.PlaySound("Screw");
         StopAllCoroutines();
         StartCoroutine(LiftAnim());
     }
@@ -122,7 +123,7 @@ public class Screw : MonoBehaviour
         _sr.sortingOrder = 5;
 
         if (currentHole != null) currentHole.SetScrew(this);
-
+        AudioManager.Instance.PlaySound("Screw");
         StopAllCoroutines();
         StartCoroutine(ReturnAnimAndReconnect());
     }
@@ -172,6 +173,7 @@ public class Screw : MonoBehaviour
     public void PlaceIntoHole(ScrewHole target)
     {
         if (isMoving || !isSelected) return;
+        AudioManager.Instance.PlaySound("Screw");
         StartCoroutine(PlaceAnim(target));
     }
 
