@@ -69,7 +69,8 @@ public class GameManager : MonoBehaviour
     public void WinGame()
     {
         ShowUI(panelWin);
-        if(currentLevelIndex < PlayerData.Instance.TotalLevelsCompleted) PlayerData.Instance.AddCoins(10);
+        VibrationManager.Instance.Vibrate();
+        if (currentLevelIndex < PlayerData.Instance.TotalLevelsCompleted) PlayerData.Instance.AddCoins(10);
         UpdateVisual.Instance.UpdateCoins();
         if (PlayerData.Instance.UnlockedLevel < currentLevelIndex + 1) PlayerData.Instance.UnlockLevel(currentLevelIndex + 1 ) ;
         PlayerData.Instance.IncrementTotalCompleted();
@@ -78,6 +79,7 @@ public class GameManager : MonoBehaviour
     public void TimerEnded()
     {
         Time.timeScale = 0f;
+        VibrationManager.Instance.Vibrate();
         ShowUI(panelLose);
     }
     public void NextLevel()
@@ -120,6 +122,7 @@ public class GameManager : MonoBehaviour
         if (levelPrefabs.Count > index && levelPrefabs[index] != null)
         {
             currentLevelObject = Instantiate(levelPrefabs[index], levelContainer);
+            VibrationManager.Instance.Vibrate();
             TimeLimit();
             Resume();
         }
