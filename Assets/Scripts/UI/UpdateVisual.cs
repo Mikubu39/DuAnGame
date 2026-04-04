@@ -41,6 +41,7 @@ public class UpdateVisual : MonoBehaviour
 
     public void UpdateUnscrewImg(bool value)
     {
+        useUnScrewToggle.isOn = value;
         unScrewImage.color = value ? onColor : offColor;
     }
 
