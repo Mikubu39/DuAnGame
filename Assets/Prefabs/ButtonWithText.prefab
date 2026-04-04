@@ -282,9 +282,9 @@ MonoBehaviour:
           m_StringArgument: PressButton
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 6395980408831874779, guid: 3cacc617f81e8bb49adf35f3c4194773, type: 3}
         m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
-        m_MethodName: CloseSettings
+        m_MethodName: 
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
