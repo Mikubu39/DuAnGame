@@ -18,6 +18,10 @@ public class Inventory : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
         Load();
+
+        // TEST SUPPORT: Nếu chưa có item nào thì tặng luôn 10 cái để test!
+        if (unscrews <= 0) AddUnscrew(10);
+        if (time60s <= 0) AddTime60s(10);
     }
 
     public void Load()
@@ -40,11 +44,15 @@ public class Inventory : MonoBehaviour
         PlayerPrefs.Save();
     }
 
-    public void UseUnscrew()
+    public bool UseUnscrew()
     {
+        if (unscrews <= 0) return false;
         unscrews--;
         PlayerPrefs.SetInt(KEY_UNSCREW, unscrews);
         PlayerPrefs.Save();
+
+        if (UpdateVisual.Instance != null) UpdateVisual.Instance.UpdateItemQuantity();
+        return true;
     }
 
     public bool UseTime60s()

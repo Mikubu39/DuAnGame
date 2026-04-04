@@ -83,8 +83,47 @@ public class Screw : MonoBehaviour
     {
         if (isMoving) return;
 
+        // TRƯỜNG HỢP: Dùng vật phẩm phá ốc
+        if (UseItem.isDestroyingScrew)
+        {
+            if (Inventory.Instance.UseUnscrew())
+            {
+                SelfDestruct();
+                UseItem.isDestroyingScrew = false; // Tắt chế độ phá sau khi dùng xong
+                return;
+            }
+        }
+
         if (!isSelected) PickUp();
         else PutDown_Cancel();
+    }
+
+    public void SelfDestruct()
+    {
+        if (isMoving) return;
+        
+        // 1. Giải phóng lỗ ốc
+        if (currentHole != null) currentHole.SetScrew(null);
+
+        // 2. Phá bỏ các liên kết vật lý và báo cho các tấm ván
+        DestroyJoint();
+        foreach (WoodPlank plank in pinningPlanks)
+        {
+            if (plank != null)
+            {
+                plank.GetComponent<Rigidbody2D>().isKinematic = false;
+                plank.OnScrewDetached(this);
+            }
+        }
+
+        // 3. Nếu đang bị cầm thì bỏ ra
+        if (_held == this) _held = null;
+
+        // 4. Hiệu ứng âm thanh
+        if (AudioManager.Instance != null) AudioManager.Instance.PlaySound("Screw");
+
+        // 5. Biến mất
+        Destroy(gameObject);
     }
 
     public void PickUp()
@@ -104,9 +143,11 @@ public class Screw : MonoBehaviour
         {
             if (plank != null)
             {
-                plank.GetComponent<Rigidbody2D>().isKinematic = true;
-                plank.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
-                plank.GetComponent<Rigidbody2D>().angularVelocity = 0f;
+                Rigidbody2D rb = plank.GetComponent<Rigidbody2D>();
+                rb.isKinematic = true;
+                rb.velocity = Vector2.zero;
+                rb.angularVelocity = 0f;
+                rb.constraints = RigidbodyConstraints2D.FreezeAll; // KHÓA CỨNG cả constraints
             }
         }
         AudioManager.Instance.PlaySound("Screw");
@@ -164,7 +205,14 @@ public class Screw : MonoBehaviour
             CreateJoint();
             foreach (var plank in pinningPlanks)
             {
-                if (plank != null) plank.GetComponent<Rigidbody2D>().isKinematic = false;
+                if (plank != null)
+                {
+                    // QUAN TRỌNG: Gọi hàm này TRƯỚC để thiết lập gravity = 0 và FreezeAll
+                    plank.OnScrewAttached(this); 
+                    
+                    // Sau đó mới trả lại quyền điều khiển cho Physics
+                    plank.GetComponent<Rigidbody2D>().isKinematic = false;
+                }
             }
         }
         isMoving = false;
