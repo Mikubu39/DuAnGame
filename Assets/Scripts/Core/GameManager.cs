@@ -51,6 +51,8 @@ public class GameManager : MonoBehaviour
     {
         panelPause.SetActive(true);
         Time.timeScale = 0f;
+        UseItem.isDestroyingScrew = false;
+        UpdateVisual.Instance.UpdateUnscrewImg(false);
     }
 
     public void Resume()
@@ -61,7 +63,6 @@ public class GameManager : MonoBehaviour
     
     public void ReplayLevel()
     {
-        Resume();
         ShowUI(panelGameplay);
         LoadLevel(currentLevelIndex);
     }
@@ -120,9 +121,8 @@ public class GameManager : MonoBehaviour
         {
             currentLevelObject = Instantiate(levelPrefabs[index], levelContainer);
             TimeLimit();
+            Resume();
         }
-        UseItem.isDestroyingScrew = false;
-        UpdateVisual.Instance.UpdateUnscrewImg(false);
     }
 
     private void ShowUI(GameObject panelToShow)
@@ -136,7 +136,7 @@ public class GameManager : MonoBehaviour
         if (panelToShow != null) panelToShow.SetActive(true);
     }
 
-    public void TimeLimit()
+    void TimeLimit()
     {
         var levelInform = levelPrefabs[currentLevelIndex].GetComponent<LevelInformation>();
         if (levelInform.timeLimit > 0)
