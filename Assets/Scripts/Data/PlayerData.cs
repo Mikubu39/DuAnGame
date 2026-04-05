@@ -36,6 +36,11 @@ public class PlayerData : MonoBehaviour
         Load();
     }
 
+    private void Update()
+    {
+        UnlockedLevel = PlayerPrefs.GetInt(KEY_UNLOCKED_LEVEL, 1);
+        TotalLevelsCompleted = PlayerPrefs.GetInt(KEY_TOTAL_COMPLETED, 0);
+    }
     public void Load()
     {
         Coins = PlayerPrefs.GetInt(KEY_COINS, 0);
@@ -61,4 +66,5 @@ public class PlayerData : MonoBehaviour
     public void SetMusic(bool on) { MusicEnabled = on; PlayerPrefs.SetInt(KEY_MUSIC, on ? 1 : 0); Save(); }
     public void SetVibration(bool on) { VibrationEnabled = on; PlayerPrefs.SetInt(KEY_VIBRATION, on ? 1 : 0); Save(); }
     public void IncrementTotalCompleted() { TotalLevelsCompleted++; PlayerPrefs.SetInt(KEY_TOTAL_COMPLETED, TotalLevelsCompleted); Save(); }
+    public void ResetUnlockedLevel() {PlayerPrefs.SetInt(KEY_UNLOCKED_LEVEL, 1); PlayerPrefs.SetInt(KEY_TOTAL_COMPLETED, 0); Save(); }
 }

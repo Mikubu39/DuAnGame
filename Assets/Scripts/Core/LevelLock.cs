@@ -35,18 +35,20 @@ public class LevelLock : MonoBehaviour
 
     void Start()
     {
+        UpdateLevelButton();
+    }
+
+    public void UpdateLevelButton()
+    {
         foreach (var level in levels)
         {
             Transform child = level.levelButton.transform.GetChild(0);
-            TextMeshProUGUI text = child.GetComponent<TMPro.TextMeshProUGUI>();
+            TextMeshProUGUI text = child.GetComponent<TextMeshProUGUI>();
             if (text != null)
             {
                 text.text = level.levelIndex.ToString();
             }
-            if(level.levelIndex > PlayerPrefs.GetInt("unlockedLevel", 1))
-            {
-                level.levelButton.interactable = false;
-            }
+            level.levelButton.interactable = level.levelIndex <= PlayerData.Instance.UnlockedLevel;
         }
     }
 }

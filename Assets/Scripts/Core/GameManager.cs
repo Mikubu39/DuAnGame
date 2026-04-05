@@ -40,7 +40,6 @@ public class GameManager : MonoBehaviour
         UpdateLevelText();
         ShowUI(panelMainMenu);
     }
-
     public void StartGame()
     {
         ShowUI(panelGameplay);
@@ -70,10 +69,14 @@ public class GameManager : MonoBehaviour
     {
         ShowUI(panelWin);
         VibrationManager.Instance.Vibrate();
-        if (currentLevelIndex < PlayerData.Instance.TotalLevelsCompleted) PlayerData.Instance.AddCoins(10);
-        UpdateVisual.Instance.UpdateCoins();
-        if (PlayerData.Instance.UnlockedLevel < currentLevelIndex + 1) PlayerData.Instance.UnlockLevel(currentLevelIndex + 1 ) ;
-        PlayerData.Instance.IncrementTotalCompleted();
+        if (currentLevelIndex +1 > PlayerData.Instance.TotalLevelsCompleted)
+        {
+            PlayerData.Instance.AddCoins(10);
+            UpdateVisual.Instance.UpdateCoins();
+            PlayerData.Instance.IncrementTotalCompleted();
+        }
+        if (PlayerData.Instance.UnlockedLevel < currentLevelIndex + 2 && currentLevelIndex + 1 < levelPrefabs.Count) PlayerData.Instance.UnlockLevel(currentLevelIndex + 2 ) ;
+        LevelLock.Instance.UpdateLevelButton();
     }
 
     public void TimerEnded()
