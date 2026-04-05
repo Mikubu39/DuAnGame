@@ -99,6 +99,14 @@ public class GameManager : MonoBehaviour
         StartGame();
     }
 
+    public void SelectLevel(int level)
+    {
+        if (level < 0 || level > PlayerData.Instance.UnlockedLevel) return;
+        currentLevelIndex = level;
+        UpdateLevelText();
+        StartGame();
+    }
+
     // --- CÁC HÀM MỚI CHO MENU ---
 
     public void BackToMenu()
