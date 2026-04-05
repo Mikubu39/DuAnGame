@@ -17,6 +17,7 @@ public class GameManager : MonoBehaviour
     [Header("UI Texts")]
     public TextMeshProUGUI txtMenuPlayButton; // Chữ trên nút Play màu xanh
     public TextMeshProUGUI txtGameplayLevel;  // Chữ hiển thị level lúc đang chơi
+    public TextMeshProUGUI txtWinningPrize;       
 
     [Header("Level Settings")]
     public List<GameObject> levelPrefabs;
@@ -69,9 +70,10 @@ public class GameManager : MonoBehaviour
     {
         ShowUI(panelWin);
         VibrationManager.Instance.Vibrate();
+        txtWinningPrize.text = BoardController.Instance.prize.ToString();
         if (currentLevelIndex +1 > PlayerData.Instance.TotalLevelsCompleted)
         {
-            PlayerData.Instance.AddCoins(10);
+            PlayerData.Instance.AddCoins(BoardController.Instance.prize);
             UpdateVisual.Instance.UpdateCoins();
             PlayerData.Instance.IncrementTotalCompleted();
         }

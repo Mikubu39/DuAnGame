@@ -9,6 +9,7 @@ public class BoardController : MonoBehaviour
 
     private List<WoodPlank> _planks;
     private bool _levelDone = false;
+    public int prize;
 
     private void Awake()
     {
@@ -20,6 +21,7 @@ public class BoardController : MonoBehaviour
     {
         _planks = FindObjectsOfType<WoodPlank>().ToList();
         Debug.Log($"[Board] Tìm thấy {_planks.Count} ván gỗ trong level này.");
+        prize = _planks.Count * 10;
     }
 
     public void CheckWinCondition()
