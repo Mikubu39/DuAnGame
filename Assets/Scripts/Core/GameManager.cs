@@ -70,10 +70,12 @@ public class GameManager : MonoBehaviour
     {
         ShowUI(panelWin);
         VibrationManager.Instance.Vibrate();
+        AudioManager.Instance.PlaySound("Winning");
         txtWinningPrize.text = BoardController.Instance.prize.ToString();
         if (currentLevelIndex +1 > PlayerData.Instance.TotalLevelsCompleted)
         {
             PlayerData.Instance.AddCoins(BoardController.Instance.prize);
+            AudioManager.Instance.PlaySound("Payout");
             UpdateVisual.Instance.UpdateCoins();
             PlayerData.Instance.IncrementTotalCompleted();
         }
@@ -85,6 +87,7 @@ public class GameManager : MonoBehaviour
     {
         Time.timeScale = 0f;
         VibrationManager.Instance.Vibrate();
+        AudioManager.Instance.PlaySound("Losing");
         ShowUI(panelLose);
     }
     public void NextLevel()
