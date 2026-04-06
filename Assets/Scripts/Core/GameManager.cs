@@ -1,7 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
 using TMPro;
-using UnityEngine.Apple.ReplayKit; // Thêm thư viện này để dùng TextMeshPro
 
 public class GameManager : MonoBehaviour
 {
