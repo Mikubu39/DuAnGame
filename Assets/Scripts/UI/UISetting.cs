@@ -32,6 +32,7 @@ public class UISettings : MonoBehaviour
         PlayerData.Instance.SetMusic(value);
         AudioManager.Instance.ApplySettings();
         UpdateVisual();
+        AudioManager.Instance?.PlaySound("PressButton");
     }
 
     private void OnSoundChanged(bool value)
@@ -39,12 +40,14 @@ public class UISettings : MonoBehaviour
         PlayerData.Instance.SetSound(value);
         AudioManager.Instance.ApplySettings();
         UpdateVisual();
+        AudioManager.Instance?.PlaySound("PressButton");
     }
 
     private void OnVibrationChanged(bool value)
     {
         PlayerData.Instance.SetVibration(value);
         UpdateVisual();
+        AudioManager.Instance?.PlaySound("PressButton");
     }
     void UpdateVisual()
     {

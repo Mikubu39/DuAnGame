@@ -90,6 +90,7 @@ public class Screw : MonoBehaviour
             {
                 SelfDestruct();
                 UseItem.isDestroyingScrew = false; // Tắt chế độ phá sau khi dùng xong
+                UpdateVisual.Instance.UpdateUnscrewImg(false);
                 return;
             }
         }
