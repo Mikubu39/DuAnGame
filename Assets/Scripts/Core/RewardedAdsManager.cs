@@ -23,6 +23,8 @@ public class RewardedAdsManager : MonoBehaviour, IUnityAdsLoadListener, IUnityAd
     }
     void Start()
     {
+        Advertisement.debugMode = true;
+
         if (string.IsNullOrEmpty(_gameId))
         {
             Debug.LogError("Game ID is missing! Set it in the Inspector.");
