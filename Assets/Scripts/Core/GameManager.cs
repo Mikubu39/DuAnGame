@@ -17,6 +17,7 @@ public class GameManager : MonoBehaviour
     [Header("UI Texts")]
     public TextMeshProUGUI txtMenuPlayButton; // Chữ trên nút Play màu xanh
     public TextMeshProUGUI txtGameplayLevel;  // Chữ hiển thị level lúc đang chơi
+    public TextMeshProUGUI txtWinningPrize;       
 
     [Header("Level Settings")]
     public List<GameObject> levelPrefabs;
@@ -40,7 +41,6 @@ public class GameManager : MonoBehaviour
         UpdateLevelText();
         ShowUI(panelMainMenu);
     }
-
     public void StartGame()
     {
         ShowUI(panelGameplay);
@@ -51,6 +51,8 @@ public class GameManager : MonoBehaviour
     {
         panelPause.SetActive(true);
         Time.timeScale = 0f;
+        UseItem.isDestroyingScrew = false;
+        UpdateVisual.Instance.UpdateUnscrewImg(false);
     }
 
     public void Resume()
@@ -61,22 +63,31 @@ public class GameManager : MonoBehaviour
     
     public void ReplayLevel()
     {
-        Resume();
         ShowUI(panelGameplay);
         LoadLevel(currentLevelIndex);
     }
     public void WinGame()
     {
         ShowUI(panelWin);
-        if(currentLevelIndex < PlayerData.Instance.TotalLevelsCompleted) PlayerData.Instance.AddCoins(10);
-        UpdateVisual.Instance.UpdateCoins();
-        if (PlayerData.Instance.UnlockedLevel < currentLevelIndex + 1) PlayerData.Instance.UnlockLevel(currentLevelIndex + 1 ) ;
-        PlayerData.Instance.IncrementTotalCompleted();
+        VibrationManager.Instance.Vibrate();
+        AudioManager.Instance.PlaySound("Winning");
+        txtWinningPrize.text = BoardController.Instance.prize.ToString();
+        if (currentLevelIndex +1 > PlayerData.Instance.TotalLevelsCompleted)
+        {
+            PlayerData.Instance.AddCoins(BoardController.Instance.prize);
+            AudioManager.Instance.PlaySound("Payout");
+            UpdateVisual.Instance.UpdateCoins();
+            PlayerData.Instance.IncrementTotalCompleted();
+        }
+        if (PlayerData.Instance.UnlockedLevel < currentLevelIndex + 2 && currentLevelIndex + 1 < levelPrefabs.Count) PlayerData.Instance.UnlockLevel(currentLevelIndex + 2 ) ;
+        LevelLock.Instance.UpdateLevelButton();
     }
 
     public void TimerEnded()
     {
         Time.timeScale = 0f;
+        VibrationManager.Instance.Vibrate();
+        AudioManager.Instance.PlaySound("Losing");
         ShowUI(panelLose);
     }
     public void NextLevel()
@@ -92,6 +103,14 @@ public class GameManager : MonoBehaviour
             return;
         }
 
+        UpdateLevelText();
+        StartGame();
+    }
+
+    public void SelectLevel(int level)
+    {
+        if (level < 0 || level > PlayerData.Instance.UnlockedLevel) return;
+        currentLevelIndex = level;
         UpdateLevelText();
         StartGame();
     }
@@ -119,10 +138,10 @@ public class GameManager : MonoBehaviour
         if (levelPrefabs.Count > index && levelPrefabs[index] != null)
         {
             currentLevelObject = Instantiate(levelPrefabs[index], levelContainer);
+            VibrationManager.Instance.Vibrate();
             TimeLimit();
+            Resume();
         }
-        UseItem.isDestroyingScrew = false;
-        UpdateVisual.Instance.UpdateUnscrewImg(false);
     }
 
     private void ShowUI(GameObject panelToShow)
@@ -136,7 +155,7 @@ public class GameManager : MonoBehaviour
         if (panelToShow != null) panelToShow.SetActive(true);
     }
 
-    public void TimeLimit()
+    void TimeLimit()
     {
         var levelInform = levelPrefabs[currentLevelIndex].GetComponent<LevelInformation>();
         if (levelInform.timeLimit > 0)
