@@ -26,8 +26,38 @@ public class ScrewHole : MonoBehaviour
 
     private void Start()
     {
-        if (holeType == HoleType.PlankHole)
-            ownerPlank = GetComponentInParent<WoodPlank>();
+        if (holeType == HoleType.PlankHole && ownerPlank == null)
+        {
+            // TÌM KIẾM CHỦ NHÂN THÔNG MINH (Dựa trên Layer)
+            Collider2D[] allHits = Physics2D.OverlapPointAll(transform.position);
+            WoodPlank bestPlank = null;
+            int maxOrder = -999;
+
+            foreach (var hitObj in allHits)
+            {
+                WoodPlank p = hitObj.GetComponentInParent<WoodPlank>();
+                if (p != null)
+                {
+                    // Lấy Sorting Order của thanh gỗ
+                    int order = 0;
+                    SpriteRenderer sr = p.GetComponentInChildren<SpriteRenderer>();
+                    if (sr != null) order = sr.sortingOrder;
+
+                    // Ưu tiên thanh gỗ nằm trên cùng (Layer cao nhất) tại vị trí này
+                    if (order > maxOrder)
+                    {
+                        maxOrder = order;
+                        bestPlank = p;
+                    }
+                }
+            }
+
+            if (bestPlank != null)
+            {
+                ownerPlank = bestPlank;
+                // Debug.Log($"[ScrewHole] {name} đã tự nhận diện Chủ nhân: {ownerPlank.name} (Layer: {maxOrder})");
+            }
+        }
     }
 
     public void SetScrew(Screw screw)
@@ -39,6 +69,15 @@ public class ScrewHole : MonoBehaviour
         // THÊM MỚI: Tắt nhận click của lỗ nếu đã có ốc cắm vào (để nhường click cho ốc)
         Collider2D col = GetComponent<Collider2D>();
         if (col != null) col.enabled = isEmpty;
+    }
+
+    public void OnClick()
+    {
+        // Chỉ cho phép đặt ốc vào nếu lỗ đang trống
+        if (isEmpty && Screw.HasHeld)
+        {
+            Screw.TryPlace(this);
+        }
     }
 
     private void RefreshVisual()

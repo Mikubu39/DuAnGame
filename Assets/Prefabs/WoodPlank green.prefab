@@ -74,7 +74,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 6
-  m_Sprite: {fileID: 21300000, guid: a53cbc24da766bb4ca027549cb062121, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 10ea3cdc0855d2c4e9ad0aaefff19c23, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -226,7 +226,7 @@ GameObject:
   - component: {fileID: 8547744859925630833}
   - component: {fileID: 3247396312324729200}
   m_Layer: 0
-  m_Name: WoodPlank
+  m_Name: WoodPlank green
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -259,7 +259,7 @@ SortingGroup:
   m_Enabled: 1
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 6
+  m_SortingOrder: 7
   m_SortAtRoot: 0
 --- !u!50 &8547744859925630833
 Rigidbody2D:
@@ -277,7 +277,7 @@ Rigidbody2D:
   m_LinearDrag: 0
   m_AngularDrag: 0.05
   m_GravityScale: 1
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 6200000, guid: 3fd5a07a7906b6541b765aea779cb8dc, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -302,3 +302,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _activeScrews: []
   plankColor: {r: 0.7, g: 0.42, b: 0.13, a: 1}
+  layerID: 2

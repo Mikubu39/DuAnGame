@@ -10,6 +10,10 @@ public class WoodPlank : MonoBehaviour
 
     public Color plankColor = new Color(0.70f, 0.42f, 0.13f);
 
+    [Header("Cài đặt tầng gỗ")]
+    [Tooltip("Thanh gỗ chỉ va chạm với các thanh gỗ CÙNG số Layer ID")]
+    public int layerID = 0;
+
     private Rigidbody2D _rb;
     private SpriteRenderer _sr;
     private bool _isFreed = false;
@@ -20,62 +24,91 @@ public class WoodPlank : MonoBehaviour
     private void Awake()
     {
         _rb = GetComponent<Rigidbody2D>();
-        _sr = GetComponent<SpriteRenderer>();
+        
+        // MỚI: Tìm SpriteRenderer ở các mục con (Square)
+        _sr = GetComponentInChildren<SpriteRenderer>();
 
-        _rb.gravityScale = 0f;
-        _rb.isKinematic = false;
-        _rb.constraints = RigidbodyConstraints2D.FreezeAll;
+        // Tối ưu hóa vật lý chuyên nghiệp: Mượt mà và ổn định
+        if (_rb != null)
+        {
+            _rb.gravityScale = 0f;
+            _rb.isKinematic = false;
+            _rb.constraints = RigidbodyConstraints2D.FreezeAll;
+            _rb.interpolation = RigidbodyInterpolation2D.Interpolate;
+            _rb.collisionDetectionMode = CollisionDetectionMode2D.Discrete;
+            _rb.mass = 1.0f;
+            _rb.drag = 0.5f;
+            _rb.angularDrag = 0.8f;
+        }
 
         if (_sr != null && _sr.sprite == null) _sr.sprite = MakePlankSprite(plankColor);
     }
 
     private void Start()
     {
-        // ĐÃ SỬA LỖI Ở ĐÂY: Chuyển sang dùng s.pinningPlanks.Contains(this)
-        Screw[] allScrewsInScene = FindObjectsOfType<Screw>();
-        foreach (Screw s in allScrewsInScene)
+        // KHÔNG CẦN tìm nữa, vì con ốc sẽ tự động báo cho ta khi nó quét thấy ta ở Start()
+        foreach (var screw in _activeScrews) EnsurePlankHole(screw);
+
+        // MỚI: Chỉ va chạm với các thanh gỗ CÙNG TẦNG (dựa trên Layer ID)
+        Collider2D myCol = GetComponentInChildren<Collider2D>(); // TÌM Ở MỤC CON (SQUARE)
+        
+        if (myCol == null)
         {
-            if (s.pinningPlanks.Contains(this) && !_activeScrews.Contains(s))
-            {
-                _activeScrews.Add(s);
-            }
+            Debug.LogWarning("Không tìm thấy Collider2D ở thanh gỗ: " + name);
+            return;
         }
 
-        foreach (var screw in _activeScrews) EnsurePlankHole(screw);
+        WoodPlank[] allPlanks = FindObjectsOfType<WoodPlank>();
+        foreach (var other in allPlanks)
+        {
+            if (other != this)
+            {
+                // Nếu KHÁC Layer ID thì xuyên qua nhau TUYỆT ĐỐI
+                if (other.layerID != this.layerID)
+                {
+                    Collider2D otherCol = other.GetComponentInChildren<Collider2D>();
+                    if (otherCol != null)
+                    {
+                        Physics2D.IgnoreCollision(myCol, otherCol);
+                    }
+                }
+            }
+        }
     }
 
     private void EnsurePlankHole(Screw screw)
     {
-        foreach (var hole in GetComponentsInChildren<ScrewHole>())
+        // Kiểm tra xem đã có lỗ ở vị trí này chưa
+        float radius = 0.15f;
+        Collider2D[] hits = Physics2D.OverlapCircleAll(screw.transform.position, radius);
+        foreach (var h in hits)
         {
-            if (hole.holeType == ScrewHole.HoleType.PlankHole)
-            {
-                if (Vector2.Distance(hole.transform.position, screw.transform.position) < 0.15f) return;
-            }
+            if (h.GetComponent<ScrewHole>() != null && h.transform.IsChildOf(transform)) return;
         }
 
-        var hObj = new GameObject($"PlankHole_{screw.name}");
+        // Tạo lỗ mới trực tiếp bằng code (không dùng Prefab vì GameManager không có)
+        GameObject hObj = new GameObject($"PlankHole_{screw.name}");
         hObj.transform.SetParent(transform);
         hObj.transform.position = screw.transform.position;
+        hObj.transform.localPosition += new Vector3(0, 0, -0.01f);
         hObj.layer = gameObject.layer;
 
-        var sr = hObj.AddComponent<SpriteRenderer>();
-        sr.sprite = ScrewHole.MakeHoleSprite();
-        sr.sortingOrder = _sr != null ? _sr.sortingOrder + 1 : 3;
-        sr.color = new Color(0f, 0f, 0f, 0f);
+        // Thêm SpriteRenderer và gán hình ảnh lỗ
+        SpriteRenderer hSr = hObj.AddComponent<SpriteRenderer>();
+        hSr.sprite = ScrewHole.MakeHoleSprite();
+        hSr.sortingOrder = _sr != null ? _sr.sortingOrder + 1 : 10;
+        hSr.color = new Color(0, 0, 0, 0); // Lỗ ẩn khi có ốc cắm vào
 
-        var hole2 = hObj.AddComponent<ScrewHole>();
-        hole2.holeType = ScrewHole.HoleType.PlankHole;
-        hole2.isEmpty = false;
-        hole2.ownerPlank = this;
+        // Thêm component ScrewHole và thiết lập
+        ScrewHole sh = hObj.AddComponent<ScrewHole>();
+        sh.holeType = ScrewHole.HoleType.PlankHole;
+        sh.ownerPlank = this;
+        sh.SetScrew(screw);
 
-
-        var col = hObj.AddComponent<CircleCollider2D>();
+        // Thêm va chạm Trigger cho lỗ
+        CircleCollider2D col = hObj.AddComponent<CircleCollider2D>();
         col.radius = 0.28f;
-        col.isTrigger = true; // Thêm dòng này để tránh ván va chạm vật lý với lỗ trống
-
-        hObj.AddComponent<ScrewHoleClick>();
-        hole2.SetScrew(screw);
+        col.isTrigger = true;
     }
 
     public void OnScrewDetached(Screw screw)
@@ -84,14 +117,24 @@ public class WoodPlank : MonoBehaviour
 
         _activeScrews.Remove(screw);
 
+        // MỚI: Tìm cái lỗ tương ứng trên thanh gỗ này và báo nó đã trống
+        foreach (var hole in GetComponentsInChildren<ScrewHole>())
+        {
+            if (Vector2.Distance(hole.transform.position, screw.transform.position) < 0.1f)
+            {
+                hole.SetScrew(null);
+            }
+        }
+
         if (_activeScrews.Count <= 0)
         {
             if (_fallCoroutine == null) _fallCoroutine = StartCoroutine(FallOff());
         }
-        else
+        else if (_activeScrews.Count == 1)
         {
+            // Nếu chỉ còn 1 ốc -> Cho phép đung đưa mượt mà (HingeJoint lo liệu)
             _rb.constraints = RigidbodyConstraints2D.None;
-            _rb.gravityScale = 1.2f;
+            _rb.gravityScale = 1.0f;
             _rb.WakeUp();
         }
     }
@@ -101,6 +144,15 @@ public class WoodPlank : MonoBehaviour
         if (!_activeScrews.Contains(screw))
             _activeScrews.Add(screw);
 
+        // MỚI: Tìm cái lỗ tương ứng trên thanh gỗ này và báo nó đã có ốc (để tắt Collider của lỗ)
+        foreach (var hole in GetComponentsInChildren<ScrewHole>())
+        {
+            if (Vector2.Distance(hole.transform.position, screw.transform.position) < 0.1f)
+            {
+                hole.SetScrew(screw);
+            }
+        }
+
         if (_fallCoroutine != null)
         {
             StopCoroutine(_fallCoroutine);
@@ -108,12 +160,19 @@ public class WoodPlank : MonoBehaviour
             _isFreed = false;
         }
 
-        if (_activeScrews.Count >= 1)
+        if (_activeScrews.Count >= 2)
         {
+            // Nếu có từ 2 ốc trở lên thì khóa cứng hoàn toàn
             _rb.gravityScale = 0f;
             _rb.constraints = RigidbodyConstraints2D.FreezeAll;
             _rb.velocity = Vector2.zero;
             _rb.angularVelocity = 0f;
+        }
+        else if (_activeScrews.Count == 1)
+        {
+            // Nếu chỉ có 1 ốc thì để nó đung đưa mượt mà qua HingeJoint
+            _rb.gravityScale = 1.0f;
+            _rb.constraints = RigidbodyConstraints2D.None;
         }
     }
 

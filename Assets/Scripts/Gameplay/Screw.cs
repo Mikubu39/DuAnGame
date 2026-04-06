@@ -26,24 +26,33 @@ public class Screw : MonoBehaviour
     {
         _sr = GetComponent<SpriteRenderer>();
         if (_sr.sprite == null) _sr.sprite = MakeScrewSprite();
+
+        // MỚI: Ốc luôn là Kinematic để không bị gỗ đẩy hay tự nó làm xáo trộn vật lý
+        Rigidbody2D rb = GetComponent<Rigidbody2D>();
+        if (rb != null) rb.isKinematic = true;
     }
 
     private void Start()
     {
         _restPos = transform.position;
 
-        // AUTO-DETECT: Tự động dùng sóng âm quét xem có tấm ván nào nằm dưới đít con ốc không
+        // AUTO-DETECT: Tìm tất cả thanh gỗ và lỗ nằm ở vị trí này
         Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, 0.2f);
         foreach (var hit in hits)
         {
-            WoodPlank plank = hit.GetComponent<WoodPlank>();
-            // Đề phòng collider nằm ở vật thể con
-            if (plank == null) plank = hit.GetComponentInParent<WoodPlank>();
-
-            // Nếu phát hiện ván và ván chưa có trong danh sách -> Tự động thêm vào!
+            // Tìm WoodPlank (kiểm tra cả mục cha nếu collider ở mục con)
+            WoodPlank plank = hit.GetComponentInParent<WoodPlank>();
             if (plank != null && !pinningPlanks.Contains(plank))
             {
                 pinningPlanks.Add(plank);
+                plank.OnScrewAttached(this);
+            }
+
+            // Tự động tìm lỗ nếu chưa được gán
+            if (currentHole == null)
+            {
+                ScrewHole hole = hit.GetComponentInParent<ScrewHole>();
+                if (hole != null) currentHole = hole;
             }
         }
 
@@ -79,7 +88,7 @@ public class Screw : MonoBehaviour
         _joints.Clear();
     }
 
-    private void OnMouseDown()
+    public void SelectScrew()
     {
         if (isMoving) return;
 
@@ -89,7 +98,7 @@ public class Screw : MonoBehaviour
             if (Inventory.Instance.UseUnscrew())
             {
                 SelfDestruct();
-                UseItem.isDestroyingScrew = false; // Tắt chế độ phá sau khi dùng xong
+                UseItem.isDestroyingScrew = false;
                 UpdateVisual.Instance.UpdateUnscrewImg(false);
                 return;
             }
@@ -136,19 +145,35 @@ public class Screw : MonoBehaviour
         _sr.color = new Color(1f, 0.92f, 0.25f);
         _sr.sortingOrder = 10;
 
-        DestroyJoint();
-        if (currentHole != null) currentHole.SetScrew(null);
+        // TẮT collider tạm thời — LiftAnim sẽ bật lại khi ốc đã lên vị trí bay
+        // Tắt để không đẩy gỗ khi di chuyển, nhưng sẽ bật lại ở vị trí mới 
+        // để vẫn chặn được gỗ khác (solid physics)
+        Collider2D col = GetComponent<Collider2D>();
+        if (col != null) col.enabled = false;
 
-        // Đánh thức tất cả các ván đang bị ốc này ghim để chúng rơi xuống
+        // MỚI: Chỉ bỏ qua va chạm với những thanh gỗ mà nó đang ghim
+        // Việc này giúp ốc không đẩy gỗ (khi nhấc lên) nhưng vẫn đỡ được gỗ khác chồng lên nó
+        foreach (WoodPlank plank in pinningPlanks)
+        {
+            Collider2D pCol = plank.GetComponentInChildren<Collider2D>();
+            if (pCol != null && col != null) Physics2D.IgnoreCollision(col, pCol, true);
+        }
+
+        DestroyJoint();
+        
+        // Đóng băng tất cả các ván đang bị ốc này ghim
         foreach (WoodPlank plank in pinningPlanks)
         {
             if (plank != null)
             {
                 Rigidbody2D rb = plank.GetComponent<Rigidbody2D>();
-                rb.isKinematic = true;
-                rb.velocity = Vector2.zero;
-                rb.angularVelocity = 0f;
-                rb.constraints = RigidbodyConstraints2D.FreezeAll; // KHÓA CỨNG cả constraints
+                if (rb != null)
+                {
+                    rb.isKinematic = true;
+                    rb.velocity = Vector2.zero;
+                    rb.angularVelocity = 0f;
+                    rb.constraints = RigidbodyConstraints2D.FreezeAll;
+                }
             }
         }
         AudioManager.Instance.PlaySound("Screw");
@@ -165,6 +190,10 @@ public class Screw : MonoBehaviour
         _sr.sortingOrder = 5;
 
         if (currentHole != null) currentHole.SetScrew(this);
+
+        // Collider sẽ được bật lại bởi ReturnAnimAndReconnect sau khi hạ cánh
+        // KHÔNG bật ở đây vì ốc còn đang bay về → sẽ đẩy gỗ
+
         AudioManager.Instance.PlaySound("Screw");
         StopAllCoroutines();
         StartCoroutine(ReturnAnimAndReconnect());
@@ -172,6 +201,9 @@ public class Screw : MonoBehaviour
 
     private IEnumerator LiftAnim()
     {
+        Collider2D col = GetComponent<Collider2D>();
+
+        // Bay lên — collider TẮT (không đẩy gỗ)
         Vector3 start = transform.position;
         Vector3 end = _restPos + Vector3.up * liftHeight;
         float t = 0f;
@@ -181,6 +213,14 @@ public class Screw : MonoBehaviour
             transform.position = Vector3.Lerp(start, end, Mathf.SmoothStep(0, 1, t));
             yield return null;
         }
+
+        // Đã lên tới vị trí → BẬT LẠI collider (solid) để chặn gỗ khác
+        if (col != null)
+        {
+            col.enabled = true;
+            col.isTrigger = false;
+        }
+
         while (isSelected)
         {
             transform.position = end + Vector3.up * Mathf.Sin(Time.time * 4f) * 0.05f;
@@ -191,6 +231,11 @@ public class Screw : MonoBehaviour
     private IEnumerator ReturnAnimAndReconnect()
     {
         isMoving = true;
+
+        // TẮT collider trong khi bay về (không đẩy gỗ)
+        Collider2D col = GetComponent<Collider2D>();
+        if (col != null) col.enabled = false;
+
         Vector3 start = transform.position;
         float t = 0f;
         while (t < 1f)
@@ -201,21 +246,28 @@ public class Screw : MonoBehaviour
         }
         transform.position = _restPos;
 
-        if (pinningPlanks.Count > 0)
+        // Báo cho các thanh gỗ biết ốc đã gắn lại
+        foreach (var plank in pinningPlanks)
         {
-            CreateJoint();
-            foreach (var plank in pinningPlanks)
+            if (plank != null)
             {
-                if (plank != null)
-                {
-                    // QUAN TRỌNG: Gọi hàm này TRƯỚC để thiết lập gravity = 0 và FreezeAll
-                    plank.OnScrewAttached(this); 
-                    
-                    // Sau đó mới trả lại quyền điều khiển cho Physics
-                    plank.GetComponent<Rigidbody2D>().isKinematic = false;
-                }
+                Collider2D pCol = plank.GetComponentInChildren<Collider2D>();
+                if (pCol != null && col != null) Physics2D.IgnoreCollision(col, pCol, false);
+                plank.OnScrewAttached(this);
             }
         }
+
+        // Tạo Joint TRƯỚC khi bật collider
+        if (pinningPlanks.Count > 0) CreateJoint();
+
+        // BẬT LẠI collider (solid) sau khi đã tạo Joint
+        yield return new WaitForFixedUpdate();
+        if (col != null)
+        {
+            col.isTrigger = false;
+            col.enabled = true;
+        }
+
         isMoving = false;
     }
 
@@ -233,29 +285,21 @@ public class Screw : MonoBehaviour
         if (_held == this) _held = null;
         _sr.color = Color.white;
 
-        ScrewHole oldHole = currentHole;
+        // TẮT collider trong suốt quá trình bay (không đẩy gỗ)
+        Collider2D col = GetComponent<Collider2D>();
+        if (col != null) col.enabled = false;
 
-        // Lưu danh sách ván cũ để tháo ốc
+        // BÀI TOÁN GỖ ĐỨNG IM: Lưu lại danh sách cũ nhưng CHƯA tháo gỗ vội
+        ScrewHole oldHole = currentHole;
         List<WoodPlank> oldPlanks = new List<WoodPlank>(pinningPlanks);
         pinningPlanks.Clear();
-
-        if (oldHole != null) oldHole.SetScrew(null);
-
-        // Báo cho các ván cũ biết ốc đã rút ra
-        foreach (var p in oldPlanks)
-        {
-            if (p != null)
-            {
-                p.GetComponent<Rigidbody2D>().isKinematic = false;
-                p.OnScrewDetached(this);
-            }
-        }
 
         Vector3 sp = transform.position;
         Vector3 ep = target.transform.position;
         Vector3 mp = (sp + ep) * 0.5f + Vector3.up * 0.5f;
         float elapsed = 0f;
 
+        // GIAI ĐOẠN 1: Bay sang lỗ mới (Trong lúc này Gỗ ở lỗ cũ vẫn FREEZE tuyệt đối)
         while (elapsed < moveDuration)
         {
             elapsed += Time.deltaTime;
@@ -268,6 +312,19 @@ public class Screw : MonoBehaviour
         transform.position = ep;
         transform.rotation = Quaternion.identity;
         _sr.sortingOrder = 5;
+
+        // GIAI ĐOẠN 2: Đã hạ cánh — tháo gỗ cũ
+        if (oldHole != null) oldHole.SetScrew(null);
+        foreach (var p in oldPlanks)
+        {
+            if (p != null)
+            {
+                Collider2D pCol = p.GetComponentInChildren<Collider2D>();
+                if (pCol != null && col != null) Physics2D.IgnoreCollision(col, pCol, false);
+                p.GetComponent<Rigidbody2D>().isKinematic = false;
+                p.OnScrewDetached(this);
+            }
+        }
 
         currentHole = target;
         _restPos = ep;
@@ -284,17 +341,27 @@ public class Screw : MonoBehaviour
             }
         }
 
-        // Khóa các ván mới và tạo kết nối
+        // GIAI ĐOẠN 3: Gắn vào các ván mới (OnScrewAttached tự xử lý physics đúng)
         foreach (var p in pinningPlanks)
         {
             if (p != null)
             {
                 p.OnScrewAttached(this);
-                p.GetComponent<Rigidbody2D>().isKinematic = false;
+                // KHÔNG gọi isKinematic = false — OnScrewAttached đã xử lý đúng rồi
             }
         }
 
+        // Tạo Joint TRƯỚC khi khôi phục collider (Joint tắt collision giữa connected bodies)
         CreateJoint();
+
+        // BẬT LẠI collider (solid) sau khi đã tạo Joint
+        yield return new WaitForFixedUpdate();
+        if (col != null)
+        {
+            col.isTrigger = false;
+            col.enabled = true;
+        }
+
         isMoving = false;
     }
 
