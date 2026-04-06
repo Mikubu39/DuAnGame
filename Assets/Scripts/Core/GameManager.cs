@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine.Apple.ReplayKit; // Thêm thư viện này để dùng TextMeshPro
@@ -29,6 +29,10 @@ public class GameManager : MonoBehaviour
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
+
+        // Tối ưu hóa cho di động: Chạy ở 60 FPS để cảm giác mượt mà
+        Application.targetFrameRate = 60;
+        QualitySettings.vSyncCount = 0; // Tắt vSync để targetFrameRate có hiệu lực
     }
 
     private void Start()
