@@ -10,6 +10,7 @@ public class Screw : MonoBehaviour
     public List<WoodPlank> pinningPlanks = new List<WoodPlank>();
 
     private List<HingeJoint2D> _joints = new List<HingeJoint2D>();
+    private List<WoodPlank> _frozenLeaningPlanks = new List<WoodPlank>();
 
     [Header("Settings")]
     public float liftHeight = 0.8f;
@@ -144,34 +145,45 @@ public class Screw : MonoBehaviour
         isSelected = true;
         _held = this;
         
-        // GIẢI PHÓNG LỖ: Khi nhấc ốc lên, báo cho lỗ biết nó đang trống để nó hiện ra (màu nâu)
         if (currentHole != null) currentHole.SetScrew(null);
 
         _sr.color = new Color(1f, 0.92f, 0.25f);
         _sr.sortingOrder = 10;
 
-        // TẮT collider tạm thời — LiftAnim sẽ bật lại khi ốc đã lên vị trí bay
-        // Tắt để không đẩy gỗ khi di chuyển, nhưng sẽ bật lại ở vị trí mới 
-        // để vẫn chặn được gỗ khác (solid physics)
         Collider2D col = GetComponent<Collider2D>();
-        if (col != null) col.enabled = false;
 
-        // MỚI: Chỉ bỏ qua va chạm với những thanh gỗ mà nó đang ghim
-        // Việc này giúp ốc không đẩy gỗ (khi nhấc lên) nhưng vẫn đỡ được gỗ khác chồng lên nó
-        foreach (WoodPlank plank in pinningPlanks)
+        // BƯỚC 1: Tìm tất cả thanh gỗ đang TỰA vào ốc (không phải pinningPlanks)
+        _frozenLeaningPlanks.Clear();
+        Collider2D[] nearbyHits = Physics2D.OverlapCircleAll(transform.position, 0.5f);
+        foreach (var hit in nearbyHits)
         {
-            if (plank == null) continue;
-            
-            Collider2D pCol = plank.GetComponentInChildren<Collider2D>();
-            if (pCol != null && col != null) Physics2D.IgnoreCollision(col, pCol, true);
+            WoodPlank plank = hit.GetComponentInParent<WoodPlank>();
+            if (plank != null && !pinningPlanks.Contains(plank) && !_frozenLeaningPlanks.Contains(plank))
+            {
+                _frozenLeaningPlanks.Add(plank);
+            }
         }
 
-        DestroyJoint();
-        
-        // Đóng băng tất cả các ván đang bị ốc này ghim
+        // BƯỚC 2: ĐÓNG BĂNG thanh gỗ đang tựa TRƯỚC KHI tắt collider
+        // → Chúng không rớt (vì đã freeze) và cũng không bị đẩy (vì collider sẽ tắt)
+        foreach (WoodPlank plank in _frozenLeaningPlanks)
+        {
+            if (plank == null) continue;
+            Rigidbody2D rb = plank.GetComponent<Rigidbody2D>();
+            if (rb != null)
+            {
+                rb.velocity = Vector2.zero;
+                rb.angularVelocity = 0f;
+                rb.constraints = RigidbodyConstraints2D.FreezeAll;
+            }
+        }
+
+        // BƯỚC 3: Xử lý thanh gỗ đang ghim (pinningPlanks)
         foreach (WoodPlank plank in pinningPlanks)
         {
             if (plank == null) continue;
+            Collider2D pCol = plank.GetComponentInChildren<Collider2D>();
+            if (pCol != null && col != null) Physics2D.IgnoreCollision(col, pCol, true);
             
             Rigidbody2D rb = plank.GetComponent<Rigidbody2D>();
             if (rb != null)
@@ -182,6 +194,13 @@ public class Screw : MonoBehaviour
                 rb.constraints = RigidbodyConstraints2D.FreezeAll;
             }
         }
+
+        DestroyJoint();
+
+        // BƯỚC 4: Bây giờ an toàn để TẮT collider
+        // Mọi gỗ đã freeze → không ai rớt, ốc cũng không đẩy ai khi bay lên
+        if (col != null) col.enabled = false;
+
         AudioManager.Instance.PlaySound("Screw");
         StopAllCoroutines();
         StartCoroutine(LiftAnim());
@@ -207,9 +226,8 @@ public class Screw : MonoBehaviour
 
     private IEnumerator LiftAnim()
     {
-        Collider2D col = GetComponent<Collider2D>();
-
-        // Bay lên — collider TẮT (không đẩy gỗ)
+        // Collider đã TẮT từ PickUp() — ốc không tương tác vật lý
+        // Gỗ đang tựa đã được freeze → không rớt, không bị đẩy
         Vector3 start = transform.position;
         Vector3 end = _restPos + Vector3.up * liftHeight;
         float t = 0f;
@@ -220,13 +238,7 @@ public class Screw : MonoBehaviour
             yield return null;
         }
 
-        // Đã lên tới vị trí → BẬT LẠI collider (solid) để chặn gỗ khác
-        if (col != null)
-        {
-            col.enabled = true;
-            col.isTrigger = false;
-        }
-
+        // Hover — ốc lơ lửng, collider TẮT, không tương tác vật lý
         while (isSelected)
         {
             transform.position = end + Vector3.up * Mathf.Sin(Time.time * 4f) * 0.05f;
@@ -272,6 +284,9 @@ public class Screw : MonoBehaviour
             col.isTrigger = false;
             col.enabled = true;
         }
+
+        // Rã đông các thanh gỗ đang tựa
+        UnfreezeLeaningPlanks();
 
         isMoving = false;
     }
@@ -369,7 +384,48 @@ public class Screw : MonoBehaviour
             col.enabled = true;
         }
 
+        // Rã đông các thanh gỗ đang tựa
+        UnfreezeLeaningPlanks();
+
         isMoving = false;
+    }
+
+    /// <summary>
+    /// Rã đông các thanh gỗ đang tựa vào ốc (không phải pinningPlanks).
+    /// Khôi phục trạng thái vật lý dựa trên số ốc đang ghim của mỗi thanh.
+    /// </summary>
+    private void UnfreezeLeaningPlanks()
+    {
+        foreach (var plank in _frozenLeaningPlanks)
+        {
+            if (plank == null || !plank.gameObject.activeInHierarchy) continue;
+            Rigidbody2D rb = plank.GetComponent<Rigidbody2D>();
+            if (rb == null) continue;
+
+            int screwCount = plank._activeScrews.Count;
+            if (screwCount >= 2)
+            {
+                rb.gravityScale = 0f;
+                rb.velocity = Vector2.zero;
+                rb.angularVelocity = 0f;
+                rb.constraints = RigidbodyConstraints2D.FreezeAll;
+            }
+            else if (screwCount == 1)
+            {
+                rb.isKinematic = false;
+                rb.constraints = RigidbodyConstraints2D.None;
+                rb.gravityScale = 1.0f;
+                rb.WakeUp();
+            }
+            else
+            {
+                rb.isKinematic = false;
+                rb.constraints = RigidbodyConstraints2D.None;
+                rb.gravityScale = 2.5f;
+                rb.WakeUp();
+            }
+        }
+        _frozenLeaningPlanks.Clear();
     }
 
     private void OnDestroy()
