@@ -142,6 +142,10 @@ public class Screw : MonoBehaviour
 
         isSelected = true;
         _held = this;
+        
+        // GIẢI PHÓNG LỖ: Khi nhấc ốc lên, báo cho lỗ biết nó đang trống để nó hiện ra (màu nâu)
+        if (currentHole != null) currentHole.SetScrew(null);
+
         _sr.color = new Color(1f, 0.92f, 0.25f);
         _sr.sortingOrder = 10;
 
