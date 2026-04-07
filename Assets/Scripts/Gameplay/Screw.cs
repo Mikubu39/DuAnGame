@@ -121,7 +121,8 @@ public class Screw : MonoBehaviour
         {
             if (plank != null)
             {
-                plank.GetComponent<Rigidbody2D>().isKinematic = false;
+                Rigidbody2D prb = plank.GetComponent<Rigidbody2D>();
+                if (prb != null) prb.isKinematic = false;
                 plank.OnScrewDetached(this);
             }
         }
@@ -159,6 +160,8 @@ public class Screw : MonoBehaviour
         // Việc này giúp ốc không đẩy gỗ (khi nhấc lên) nhưng vẫn đỡ được gỗ khác chồng lên nó
         foreach (WoodPlank plank in pinningPlanks)
         {
+            if (plank == null) continue;
+            
             Collider2D pCol = plank.GetComponentInChildren<Collider2D>();
             if (pCol != null && col != null) Physics2D.IgnoreCollision(col, pCol, true);
         }
@@ -168,16 +171,15 @@ public class Screw : MonoBehaviour
         // Đóng băng tất cả các ván đang bị ốc này ghim
         foreach (WoodPlank plank in pinningPlanks)
         {
-            if (plank != null)
+            if (plank == null) continue;
+            
+            Rigidbody2D rb = plank.GetComponent<Rigidbody2D>();
+            if (rb != null)
             {
-                Rigidbody2D rb = plank.GetComponent<Rigidbody2D>();
-                if (rb != null)
-                {
-                    rb.isKinematic = true;
-                    rb.velocity = Vector2.zero;
-                    rb.angularVelocity = 0f;
-                    rb.constraints = RigidbodyConstraints2D.FreezeAll;
-                }
+                rb.isKinematic = true;
+                rb.velocity = Vector2.zero;
+                rb.angularVelocity = 0f;
+                rb.constraints = RigidbodyConstraints2D.FreezeAll;
             }
         }
         AudioManager.Instance.PlaySound("Screw");
@@ -253,12 +255,11 @@ public class Screw : MonoBehaviour
         // Báo cho các thanh gỗ biết ốc đã gắn lại
         foreach (var plank in pinningPlanks)
         {
-            if (plank != null)
-            {
-                Collider2D pCol = plank.GetComponentInChildren<Collider2D>();
-                if (pCol != null && col != null) Physics2D.IgnoreCollision(col, pCol, false);
-                plank.OnScrewAttached(this);
-            }
+            if (plank == null) continue;
+            
+            Collider2D pCol = plank.GetComponentInChildren<Collider2D>();
+            if (pCol != null && col != null) Physics2D.IgnoreCollision(col, pCol, false);
+            plank.OnScrewAttached(this);
         }
 
         // Tạo Joint TRƯỚC khi bật collider
@@ -325,7 +326,10 @@ public class Screw : MonoBehaviour
             {
                 Collider2D pCol = p.GetComponentInChildren<Collider2D>();
                 if (pCol != null && col != null) Physics2D.IgnoreCollision(col, pCol, false);
-                p.GetComponent<Rigidbody2D>().isKinematic = false;
+                
+                Rigidbody2D prb = p.GetComponent<Rigidbody2D>();
+                if (prb != null) prb.isKinematic = false;
+                
                 p.OnScrewDetached(this);
             }
         }
@@ -351,7 +355,6 @@ public class Screw : MonoBehaviour
             if (p != null)
             {
                 p.OnScrewAttached(this);
-                // KHÔNG gọi isKinematic = false — OnScrewAttached đã xử lý đúng rồi
             }
         }
 
@@ -367,6 +370,12 @@ public class Screw : MonoBehaviour
         }
 
         isMoving = false;
+    }
+
+    private void OnDestroy()
+    {
+        // QUAN TRỌNG: Reset biến static khi chuyển scene hoặc ốc bị xóa
+        if (_held == this) _held = null;
     }
 
     public static void TryPlace(ScrewHole target)
